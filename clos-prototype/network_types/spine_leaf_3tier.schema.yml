@@ -1,0 +1,68 @@
+---
+# Network Type Template: Spine-Leaf 3-Tier CLOS Fabric
+# Define the pattern; instances provide values
+
+network_type: "spine_leaf_3tier"
+description: "3-tier CLOS spine-leaf fabric with full mesh topology"
+
+parameters:
+  # Naming
+  site_prefix:
+    type: string
+    description: "Site identifier"
+  
+  spine_prefix:
+    type: string
+    default: "spine"
+  
+  leaf_prefix:
+    type: string
+    default: "leaf"
+  
+  # Scale
+  spine_count:
+    type: integer
+    min: 2
+    max: 32
+  
+  leaf_count:
+    type: integer
+    min: 2
+    max: 256
+  
+  # Addressing
+  loopback_base:
+    type: cidr
+  
+  management_base:
+    type: cidr
+  
+  transit_base:
+    type: cidr
+  
+  # Features
+  routing_protocol:
+    type: enum
+    values: [bgp, ospf]
+  
+  underlay:
+    type: enum
+    values: [ospf, isis]
+  
+  overlay:
+    type: enum
+    values: [vxlan, mpls, none]
+  
+  # VRF count
+  vrf_count:
+    type: integer
+    default: 2
+
+description_notes: |
+  This template generates a full-mesh CLOS fabric with:
+  - All spines connected to all leaves (spine_count × leaf_count links)
+  - Spine-to-spine redundancy (spine_count-1 links for full mesh)
+  - Leaf-to-leaf redundancy (leaf_count-1 links for full mesh)
+  - BGP IBGP overlay with route reflectors on spines
+  - OSPF underlay on all transit links
+  - Separate VRFs for multi-tenancy

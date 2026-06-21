@@ -1,0 +1,37 @@
+hostname {{ device }}
+!
+router ospf 1
+  router-id {{ config.loopback_ip }}
+!
+router bgp {{ config.asn }}
+  router-id {{ config.loopback_ip }}
+  {% if config.rr_server %}
+  bgp cluster-id {{ config.loopback_ip }}
+  {% endif %}
+  !
+  {% for neighbor in config.bgp_neighbors %}
+  neighbor {{ neighbor.ip }} remote-as {{ neighbor.asn }}
+  {% endfor %}
+  !
+  address-family ipv4 unicast
+    {% for neighbor in config.bgp_neighbors %}
+    neighbor {{ neighbor.ip }} activate
+    {% endfor %}
+  !
+!
+{% for link_name, link in links.items() %}
+interface {{ link.port }}
+  description "Link to {{ link.neighbor }}"
+  ip address {{ link.ip }} 255.255.255.254
+  ip mtu 9000
+  ip ospf area 0
+!
+{% endfor %}
+interface Loopback0
+  ip address {{ config.loopback_ip }} 255.255.255.255
+!
+{% for vrf_name, vrf in vrfs.items() %}
+vrf definition {{ vrf_name }}
+  rd {{ vrf.rd }}
+!
+{% endfor %}

@@ -1,0 +1,103 @@
+---
+design:
+  name: clos-prototype
+  architecture: spine_leaf
+  routing_protocol: bgp
+  underlay: ospf
+  vlans: 2
+
+devices:
+  spine-01:
+    hostname: spine-01
+    platform: arista_eos
+    role: spine
+    asn: 65000
+    loopback_ip: 10.0.1.1
+    management_ip: 192.168.1.10
+    rr_server: true
+  
+  spine-02:
+    hostname: spine-02
+    platform: arista_eos
+    role: spine
+    asn: 65000
+    loopback_ip: 10.0.1.2
+    management_ip: 192.168.1.11
+    rr_server: false
+  
+  leaf-01:
+    hostname: leaf-01
+    platform: cisco_nxos
+    role: leaf
+    asn: 65001
+    loopback_ip: 10.0.1.3
+    management_ip: 192.168.1.20
+    rr_client: true
+  
+  leaf-02:
+    hostname: leaf-02
+    platform: cisco_nxos
+    role: leaf
+    asn: 65002
+    loopback_ip: 10.0.1.4
+    management_ip: 192.168.1.21
+    rr_client: true
+
+links:
+  - name: L1
+    source: spine-01
+    source_port: Ethernet1
+    target: leaf-01
+    target_port: Ethernet1/1
+    subnet: 10.0.0.0/31
+  
+  - name: L2
+    source: spine-01
+    source_port: Ethernet2
+    target: leaf-02
+    target_port: Ethernet1/1
+    subnet: 10.0.0.2/31
+  
+  - name: L3
+    source: spine-02
+    source_port: Ethernet1
+    target: leaf-01
+    target_port: Ethernet1/2
+    subnet: 10.0.0.4/31
+  
+  - name: L4
+    source: spine-02
+    source_port: Ethernet2
+    target: leaf-02
+    target_port: Ethernet1/2
+    subnet: 10.0.0.6/31
+  
+  - name: L5
+    source: spine-01
+    source_port: Ethernet3
+    target: spine-02
+    target_port: Ethernet3
+    subnet: 10.0.0.8/31
+  
+  - name: L6
+    source: leaf-01
+    source_port: Ethernet1/3
+    target: leaf-02
+    target_port: Ethernet1/3
+    subnet: 10.0.0.10/31
+
+vrfs:
+  blue:
+    rd: "65000:1"
+    subnet: 10.0.10.0/23
+    description: "Blue VRF"
+  
+  red:
+    rd: "65000:2"
+    subnet: 10.0.20.0/23
+    description: "Red VRF"
+
+addressing:
+  loopback_pool: 10.0.1.0/24
+  transit_pool: 10.0.0.0/24
+  management_pool: 192.168.1.0/24

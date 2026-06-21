@@ -1,0 +1,31 @@
+---
+# Prototype-A Configuration Values
+# Inherits from: spine_leaf_3tier.schema.yml
+
+network_type: "spine_leaf_3tier"
+network_name: "prototype_a"
+
+parameters:
+  site_prefix: "proto"
+  spine_prefix: "spine"
+  leaf_prefix: "leaf"
+  
+  spine_count: 2
+  leaf_count: 2
+  
+  loopback_base: "10.0.1.0/24"
+  management_base: "192.168.1.0/24"
+  transit_base: "10.0.0.0/24"
+  
+  routing_protocol: "bgp"
+  underlay: "ospf"
+  overlay: "vxlan"
+  vrf_count: 2
+
+vrfs:
+  blue:
+    rd: "65000:1"
+    subnet: "10.0.10.0/23"
+  red:
+    rd: "65000:2"
+    subnet: "10.0.20.0/23"
